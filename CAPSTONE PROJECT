@@ -53,26 +53,63 @@ sudo service docker start
 
 
 DOCKERFILE FOR TODO PROJECT
+FROM node:20
+
+WORKDIR /myapp
+
+COPY  . . 
+
+RUN npm install
+
+EXPOSE 3000
+
+CMD ["node", "index.js"]
 
 
+After Installing All The requirements Go to Jenkins and create a new pipeline with the same GitHub repo that you created before and 
+write code in Groovy syntax for Git Checkout, Build Application with Docker, Push to Docker Hub, Deploy TODO Application
 
-
-After Installing All The requirements Go to the Jenkins and create new pipeline with same github repo that you created before and 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+pipeline{
+    agent { label 'docker' }
+    
+    stages{
+        stage('Git Checkout'){
+            steps{
+                git branch: 'main', credentialsId: 'GitHub-HTTPS-Credential', url: 'https://github.com/LalitJ-All-Info/todo.git'
+            }
+        }
+        
+        stage('Build Application with Docker'){
+            steps{
+                sh 'ls -al'
+                echo "Building the TODO Application....."
+                sh "docker build -t todo_app ."
+            }
+        }
+        
+        stage('Push to Docker Hub'){
+            steps{
+                echo "Pushing TODO Application to Dockerhub....."
+                withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUsername')]) {
+                    sh "docker login -u devopsfarm -p ${env.dockerHubPassword}"
+                    sh "docker tag todo_app devopsfarm/todo:${BUILD_TAG}"
+                    sh "docker push devopsfarm/todo:${BUILD_TAG}"
+                }
+            }
+            
+        }
+        
+        stage('Deploy TODO Application')
+        {
+            when {
+                expression {params.Run_Deploy_Stage}
+            }
+            steps{
+                echo "Deploying TODO Application....."
+                sh "docker rm -f todo"
+                sh "docker run -d --name todo -p 3000:3000 devopsfarm/todo:${BUILD_TAG}"
+            }
+        }
+    }
+}
 
