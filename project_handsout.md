@@ -1,87 +1,45 @@
 # CAPSTONE PROJECT
-We Will do a project with todo application
-Fork GitHub Repo https://github.com/LalitJ-All-Info/todo
+This project demonstrate how to make CICD setup for a node js application
 
-Then, Create an Instance on AWS
-
-Install JDK, Jenkins, and Docker in AWS instances 
-
-To install Jenkins and JDK Follow this https://www.jenkins.io/doc/book/installing/linux/ OR
-
-sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
-  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
-  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
-  /etc/apt/sources.list.d/jenkins.list > /dev/null
-sudo apt-get update
-sudo apt-get install jenkins
-
-sudo apt update
-sudo apt install fontconfig openjdk-17-jre
-java -version
-openjdk version "17.0.8" 2023-07-18
-OpenJDK Runtime Environment (build 17.0.8+7-Debian-1deb12u1)
-OpenJDK 64-Bit Server VM (build 17.0.8+7-Debian-1deb12u1, mixed mode, sharing)
-
-sudo systemctl enable jenkins
-sudo systemctl start jenkins
-sudo systemctl status jenkins
+* Tips:
+** use github codespace whereever possible when you need a linux shell and code editor. This saves you a lot of time and resources that otherwise you will waste in system setup.
 
 
-Install Docker in AWS Instance Follow this https://docs.docker.com/engine/install/ubuntu/ OR
+## First steps 
+1. Clone/Fork the github repo https://github.com/LalitJ-All-Info/todo
+2. Create terraform IAM role so that terraform can create aws resource on your account. Create credentials and save the file on local
+3. Create s3 bucket for terraform state file named terraform `<ypurname>-tfstate-terraform-101`. this needs to be updated in ./terraform/ec2instance/backend.tf file as well
+4. Create EC2 AWS instance using terraform (./terraform/ec2instance)
+> Note: You can use terraform code to create EC2 instance or do it manually
+```
+cd terraform/ec2instance
+aws configure
+# promts from aws configure 
+# enter you aws crentials generated in step 2
+terraform init
+terraform plan
+terraform apply
+```
 
-Set up Docker's apt repository.
-# Add Docker's official GPG key:
-sudo apt-get update
-sudo apt-get install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
+5. Once you run the terraform code you will get ssh_connect_strings and jenkins_url as terraform output.
+6. run below command to get jenkins admin password
+ ```bash
+ ssh_connect_string  "cat /var/lib/jenkins/secrets/initialAdminPassword"
+ ```
+7. Login to jenkins and do initial setup. Once all done. change admin password to admin. and try to login again.
+8. After Installing All The requirements Go to Jenkins and create a new pipeline job and write below code in Groovy syntax for Git Checkout, Build Application with Docker, Push to Docker Hub, Deploy TODO Application
 
-# Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-
-Install the Docker packages.
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-Verify that the Docker Engine installation is successfully 
-sudo service docker start
-
-
-DOCKERFILE FOR TODO PROJECT
-FROM node:20
-
-WORKDIR /myapp
-
-COPY  . . 
-
-RUN npm install
-
-EXPOSE 3000
-
-CMD ["node", "index.js"]
-
-
-After Installing All The requirements Go to Jenkins and create a new pipeline with the same GitHub repo that you created before and 
-write code in Groovy syntax for Git Checkout, Build Application with Docker, Push to Docker Hub, Deploy TODO Application
-
+```groovy
 pipeline{
-    agent { label 'docker' }
-    
     stages{
         stage('Git Checkout'){
             steps{
-                git branch: 'main', credentialsId: 'GitHub-HTTPS-Credential', url: 'https://github.com/LalitJ-All-Info/todo.git'
+                git branch: 'main', url: 'https://github.com/LalitJ-All-Info/todo.git'
             }
         }
         
         stage('Build Application with Docker'){
             steps{
-                sh 'ls -al'
                 echo "Building the TODO Application....."
                 sh "docker build -t todo_app ."
             }
@@ -91,9 +49,9 @@ pipeline{
             steps{
                 echo "Pushing TODO Application to Dockerhub....."
                 withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUsername')]) {
-                    sh "docker login -u devopsfarm -p ${env.dockerHubPassword}"
-                    sh "docker tag todo_app devopsfarm/todo:${BUILD_TAG}"
-                    sh "docker push devopsfarm/todo:${BUILD_TAG}"
+                    sh "docker login -u ${env.dockerHubUsername} -p ${env.dockerHubPassword}"
+                    sh "docker tag todo_app ${env.dockerHubUsername}/todo:${BUILD_TAG}"
+                    sh "docker push ${env.dockerHubUsername}/todo:${BUILD_TAG}"
                 }
             }
             
@@ -107,9 +65,15 @@ pipeline{
             steps{
                 echo "Deploying TODO Application....."
                 sh "docker rm -f todo"
-                sh "docker run -d --name todo -p 3000:3000 devopsfarm/todo:${BUILD_TAG}"
+                sh "docker run -d --name todo -p 3000:3000 ${env.dockerHubUsername}/todo:${BUILD_TAG}"
             }
         }
     }
 }
+
+```
+
+9. Create jenkins credential "dockerHub" that is used in our pipeline script. Usename password for you dockerhub account. (if you don't have one, You need to signup for the same)
+
+
 
