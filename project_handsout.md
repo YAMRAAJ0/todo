@@ -21,7 +21,12 @@ This project demonstrate how to make CICD setup for a node js application
         sudo apt update
         sudo apt-get install terraform
         ```
-
+    * Installing AWS cli
+        ```bash
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
+        ```
 ## First steps 
 1. Clone/Fork the github repo https://github.com/LalitJ-All-Info/todo
 2. Create terraform IAM role so that terraform can create aws resource on your account. Create credentials and save the file on local
