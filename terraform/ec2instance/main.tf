@@ -60,5 +60,8 @@ output "ssh_connect_strings" {
 }
 
 output "jenkins_url" {
-    value = "https://${aws_instance.ansible_demo[0].public_ip}:8080"
+  value = [
+    for idx in var.machines : 
+    "https://${aws_instance.ansible_demo[idx].public_ip}:8080"
+    ]
 }
