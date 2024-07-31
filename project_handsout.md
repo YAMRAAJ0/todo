@@ -1,6 +1,6 @@
-CAPSTONE PROJECT
-
-First Need to create a GitHub Repo 
+# CAPSTONE PROJECT
+We Will do a project with todo application
+Fork GitHub Repo https://github.com/LalitJ-All-Info/todo
 
 Then, Create an Instance on AWS
 
