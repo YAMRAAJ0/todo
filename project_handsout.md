@@ -3,7 +3,24 @@ This project demonstrate how to make CICD setup for a node js application
 
 * Tips:
 ** use github codespace whereever possible when you need a linux shell and code editor. This saves you a lot of time and resources that otherwise you will waste in system setup.
+** Install terraform using 
+```bash
+sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+wget -O- https://apt.releases.hashicorp.com/gpg | \
+gpg --dearmor | \
+sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
 
+gpg --no-default-keyring \
+--keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+--fingerprint
+
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+sudo apt update
+sudo apt-get install terraform
+```
 
 ## First steps 
 1. Clone/Fork the github repo https://github.com/LalitJ-All-Info/todo
@@ -74,6 +91,3 @@ pipeline{
 ```
 
 9. Create jenkins credential "dockerHub" that is used in our pipeline script. Usename password for you dockerhub account. (if you don't have one, You need to signup for the same)
-
-
-
