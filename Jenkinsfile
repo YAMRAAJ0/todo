@@ -1,11 +1,10 @@
 
 pipeline{
-    agent { label 'docker' }
-    
+    agent any
     stages{
         stage('Git Checkout'){
             steps{
-                git branch: 'main', url: 'https://github.com/LalitJ-All-Info/todo.git'
+                git branch: 'main', url: 'https://github.com/DevopsFarmer/todo.git'
             }
         }
         
