@@ -96,3 +96,6 @@ terraform apply
     ```
 
 9. Create jenkins credential "dockerHub" that is used in our pipeline script. Usename password for you dockerhub account. (if you don't have one, You need to signup for the same)
+
+
+# Deployment using ansible
