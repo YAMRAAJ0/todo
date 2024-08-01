@@ -4,7 +4,7 @@ pipeline{
     stages{
         stage('Git Checkout'){
             steps{
-                git branch: 'main', url: 'https://github.com/DevopsFarmer:main/todo.git'
+                git branch: 'main', url: 'https://github.com/DevopsFarmer/todo.git'
             }
         }
         
