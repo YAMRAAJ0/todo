@@ -5,7 +5,7 @@ pipeline{
     stages{
         stage('Git Checkout'){
             steps{
-                git branch: 'main', credentialsId: 'GitHub-HTTPS-Credential', url: 'https://github.com/LalitJ-All-Info/todo.git'
+                git branch: 'main', url: 'https://github.com/LalitJ-All-Info/todo.git'
             }
         }
         
