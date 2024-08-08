@@ -35,8 +35,7 @@ pipeline{
             }
             steps{
                 echo "Deploying TODO Application....."
-                sh "docker rm -f todo"
-                sh "docker run -d --name todo -p 3000:3000 devopsfarm/todo:${BUILD_TAG}"
+                sh "IMAGE_NAME=devopsfarm/todo IMAGE_TAG=BUILD_TAG docker compose up -d"
             }
         }
     }

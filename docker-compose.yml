@@ -2,6 +2,6 @@ version: '3.8'
 
 services:
   web:
-    image: lalitjadaun/todo:latest
+    image: ${IMAGE_NAME}:${IMAGE_TAG}
     ports:
       - "3000:3000"
