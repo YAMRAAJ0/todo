@@ -96,3 +96,13 @@ terraform apply
     ```
 
 9. Create jenkins credential "dockerHub" that is used in our pipeline script. Usename password for you dockerhub account. (if you don't have one, You need to signup for the same)
+10. Automated deployments - enable polling in git step of jenkins. Once you do this, The jenkins should check for changes in your repository every 10 minutes
+``` bash
+stage('Git Checkout'){
+                steps{
+                    git poll: true, branch: 'main', url: 'https://github.com/LalitJ-All-Info/todo.git'
+                }
+            }
+```
+
+# Deployment using ansible
