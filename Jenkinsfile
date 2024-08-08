@@ -1,6 +1,12 @@
 
 pipeline{
     agent any
+    parameters {
+        booleanParam(name: 'Run_Deploy_Stage', defaultValue: true, description: 'Deploy automatically')
+    }
+    triggers { 
+        pollSCM('H/2 * * * *') 
+    }
     stages{
         stage('Git Checkout'){
             steps{
